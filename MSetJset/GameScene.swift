@@ -188,13 +188,13 @@ class GameScene: SKScene {
 
         // save the screen
         for xx in 1...5 {
-            ColrArray[xx] = GetPixel(x: x + xx - 3, y: y, parent: self)
+            ColrArray[xx] = GetPixel(x: x + xx - 3, y: y)
         }
         for xx in 6...7 {
-            ColrArray[xx] = GetPixel(x: x, y: y + xx - 8, parent: self)
+            ColrArray[xx] = GetPixel(x: x, y: y + xx - 8)
         }
         for xx in 8...9 {
-            ColrArray[xx] = GetPixel(x: x, y: y + xx - 7, parent: self)
+            ColrArray[xx] = GetPixel(x: x, y: y + xx - 7)
         }
 
         // draw green cursor
@@ -288,6 +288,7 @@ class GameScene: SKScene {
         self.view?.window?.makeFirstResponder(self)  // Ensure scene gets input
 
         InitGraphics()
+        InitSavedPixels(Col: 0)
         InitCursor()
         CalcMSet()
         PutCursor(x: 3, y: 3, ox: &CursX, oy: &CursY)

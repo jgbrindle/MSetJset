@@ -46,6 +46,10 @@ func Plot(x: Int, y: Int, ColorIndex: Int, parent: SKNode) {
         let pixel = SKSpriteNode(color: Color[ColorIndex], size: CGSize(width: 1, height: 1))
         pixel.position = CGPoint(x: CGFloat(x), y: CGFloat(MaxY - y))
         parent.addChild(pixel)
+
+        if SavePlottedPixelColor {
+            SavedPixels[y][x] = ColorIndex
+        }
     }
 }
 
@@ -457,19 +461,29 @@ func compareColors(c1: SKColor, c2: SKColor, tolerance: CGFloat = 0.001) -> Bool
            abs(a1 - a2) < tolerance
 }
 
-func GetPixel(x: Int, y: Int, parent: SKNode) -> Int {
-    if let parent_view = parent.scene?.view {
-        let sceneTexture = parent_view.texture(from: parent_view.scene!)!
-        let pixelColor = sceneTexture.PixelColor(At: CGPoint(x: x, y: y)) ?? .black
-        // find the index of this color in the palette
-        for i in 0..<MaxCol {
-            if compareColors(c1: pixelColor, c2: Color[i]) {
-                return i
+// New improved version
+var SavedPixels: [[Int]] = [[]] // [height][width] with each entry holding a color index
+var SavePlottedPixelColor: Bool = false
+
+// setup SavedPixels if required with background color
+func InitSavedPixels(Col: Int) {
+    SavedPixels = Array(repeating: Array(repeating: 0, count: MaxXRes), count: MaxYRes)
+    if Col != 0 {
+        for r in 0..<MaxYRes {
+            for c in 0..<MaxXRes {
+                SavedPixels[r][c] = Col
             }
         }
     }
+    SavePlottedPixelColor = true
+}
 
-    return 0
+func GetPixel(x: Int, y: Int) -> Int {
+    if SavePlottedPixelColor && x >= 0 && x < MaxXRes && y >= 0 && y < MaxYRes {
+        return SavedPixels[y][x]
+    } else {
+        return 0
+    }
 }
 
 
@@ -523,35 +537,6 @@ func AxisAndPalette(parent: SKNode) {
     if DrawAxisAndPalette {
         DisplayAxis(parent: parent)
         DisplayPalette(parent: parent)
-    }
-}
-
-extension SKTexture {
-    func PixelColor(At Point: CGPoint) -> SKColor? { // Use NSColor for macOS
-        let x: Double = Point.x / CGFloat(MaxX)
-        let y: Double = Point.y / CGFloat(MaxY)
-        guard x >= 0.0 && x <= 1.0 && y >= 0.0 && y <= 1.0 else {
-            return nil // Ensure the point is within the texture's bounds (0.0 to 1.0)
-        }
-
-        let textureSize = self.size()
-        let pixelX = Int(x * textureSize.width)
-        let pixelY = Int(y * textureSize.height)
-
-        guard let pixelData = self.cgImage().dataProvider?.data else {
-            return nil // Get access to the pixel data
-        }
-        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
-
-        let bytesPerRow : Int = self.cgImage().bytesPerRow
-        let pixelInfo = pixelY * bytesPerRow + pixelX * 4 // 4 bytes per pixel (R, G, B, A)
-
-        let r = CGFloat(data[pixelInfo]) / 255.0
-        let g = CGFloat(data[pixelInfo + 1]) / 255.0
-        let b = CGFloat(data[pixelInfo + 2]) / 255.0
-        let a = CGFloat(data[pixelInfo + 3]) / 255.0
-
-        return SKColor(red: r, green: g, blue: b, alpha: a)
     }
 }
 
