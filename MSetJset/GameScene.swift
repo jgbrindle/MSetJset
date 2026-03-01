@@ -15,7 +15,7 @@ class GameScene: SKScene {
     let YMin: Double = -1.20
     let YMax: Double = 1.20
     let MaxIter: Int = 30
-    let Res: Int = 160
+    let Res: Int = MaxX / 2
 
     var isWaitingForKey = false
     var lastKeyPress = ""
@@ -140,7 +140,7 @@ class GameScene: SKScene {
         var r: Double
         var Theta: Double
 
-        for _ in 0..<100 {
+        for _ in 0..<1000 {
             // calculate Julia Set by iterating inverse equation
 
             dx = x - cx
@@ -161,54 +161,91 @@ class GameScene: SKScene {
             }
             x = r * cos(Theta)
             y = r * sin(Theta)
-            xp = Res / 2 + Round(x: x * 36) + Res
-            yp = Res / 2 + Round(x: y * 36)
+            xp = Res / 2 + Round(x: x * 36 * 4) + Res
+            yp = Res / 2 + Round(x: y * 36 * 4)
             Plot(x: xp, y: yp, ColorIndex: 143, parent: self)  // light red
 
         }
     }
 
-    var ColrArray: [Int] = Array(repeating: 0, count: 10)
+    var ColrArray: [Int] = Array(repeating: 0, count: 34)
 
     func InitCursor() {
-        ColrArray = Array(repeating: 0, count: 10)
+        ColrArray = Array(repeating: 0, count: 34)
     }
 
-    func PutCursor(x: Int, y: Int, ox: inout Int, oy: inout Int) {
+    func PutCursor(x: Int, y: Int, ox: Int, oy: Int) {
         // restore the screen
-        for xx in 1...5 {
-            Plot(x: ox + xx - 3, y: oy, ColorIndex: ColrArray[xx], parent: self)
+        for xx in 1...17 {
+            Plot(x: ox + xx - 9, y: oy, ColorIndex: ColrArray[xx], parent: self)
         }
-        for xx in 6...7 {
-            Plot(x: ox, y: oy + xx - 8, ColorIndex: ColrArray[xx], parent: self)
+        for xx in 18...25 {
+            Plot(
+                x: ox,
+                y: oy + xx - 25,
+                ColorIndex: ColrArray[xx],
+                parent: self
+            )
         }
-        for xx in 8...9 {
-            Plot(x: ox, y: oy + xx - 7, ColorIndex: ColrArray[xx], parent: self)
+        for xx in 26...33 {
+            Plot(
+                x: ox,
+                y: oy + xx - 26,
+                ColorIndex: ColrArray[xx],
+                parent: self
+            )
         }
 
         // save the screen
-        for xx in 1...5 {
-            ColrArray[xx] = GetPixel(x: x + xx - 3, y: y)
+        for xx in 1...17 {
+            ColrArray[xx] = GetPixel(x: x + xx - 9, y: y)
         }
-        for xx in 6...7 {
-            ColrArray[xx] = GetPixel(x: x, y: y + xx - 8)
+        for xx in 18...25 {
+            ColrArray[xx] = GetPixel(x: x, y: y + xx - 25)
         }
-        for xx in 8...9 {
-            ColrArray[xx] = GetPixel(x: x, y: y + xx - 7)
+        for xx in 26...33 {
+            ColrArray[xx] = GetPixel(x: x, y: y + xx - 26)
         }
 
         // draw green cursor
-        Draw(xx1: x - 2, yy1: y, xx2: x + 2, yy2: y, ColorIndex: 71, parent: self)
-        Draw(xx1: x, yy1: y-2, xx2: x, yy2: y + 2, ColorIndex: 71, parent: self)
+        Draw(
+            xx1: x - 8,
+            yy1: y,
+            xx2: x + 8,
+            yy2: y,
+            ColorIndex: 71,
+            parent: self
+        )
+        Draw(
+            xx1: x,
+            yy1: y - 8,
+            xx2: x,
+            yy2: y + 8,
+            ColorIndex: 71,
+            parent: self
+        )
 
-        ox = x
-        oy = y
     }
 
-    func BlockHalfScreen() {
+    func BlockClearHalfScreen() {
         // different to book
-        self.removeAllChildren()
-        CalcMSet()
+//        self.removeAllChildren()
+//        CalcMSet()
+        // remove all children named "Julia"
+        //        for child in self.children {
+        //            if child.name == "Julia" {
+        //                child.removeFromParent()
+        //            }
+        //        }
+        let rectSize = CGSize(width: Res - 10, height: Res - 10)
+        let filledRect = SKSpriteNode(color: .black, size: rectSize)
+
+        // Position the rectangle
+        filledRect.position = CGPoint(x: Res + Res / 2 , y: Res / 2)
+
+        // Add to scene
+        addChild(filledRect)
+
     }
 
     func ViewStats(cxVal: Double, cyVal: Double) {
@@ -226,58 +263,67 @@ class GameScene: SKScene {
         CalcMSet()
     }
 
-    func WalkAbout(CursX: inout Int, CursY: inout Int, cx: inout Double, cy: inout Double) {
-        var dx: Double, dy: Double
+    func WalkAbout(
+        CursX: inout Int,
+        CursY: inout Int,
+        cx: inout Double,
+        cy: inout Double
+    ) {
+        var dx: Double
+        var dy: Double
 
         dx = (XMax - XMin) / Double(Res - 1)
         dy = (YMax - YMin) / Double(Res - 1)
+
+        let oCursX = CursX
+        let oCursY = CursY
 
         switch lastKeyPress {
         case " ":
             ViewStats(cxVal: cx, cyVal: cy)
             lastKeyPress = ""
         case "a":
-            CursX -= 1
-            PutCursor(x: CursX, y: CursY, ox: &CursX, oy: &CursY)
+            CursX -= 4
+            PutCursor(x: CursX, y: CursY, ox: oCursX, oy: oCursY)
             lastKeyPress = ""
         case "d":
-            CursX += 1
-            PutCursor(x: CursX, y: CursY, ox: &CursX, oy: &CursY)
+            CursX += 4
+            PutCursor(x: CursX, y: CursY, ox: oCursX, oy: oCursY)
             lastKeyPress = ""
         case "w":
-            CursY -= 1
-            PutCursor(x: CursX, y: CursY, ox: &CursX, oy: &CursY)
+            CursY -= 4
+            PutCursor(x: CursX, y: CursY, ox: oCursX, oy: oCursY)
             lastKeyPress = ""
         case "s":
-            CursY += 1
-            PutCursor(x: CursX, y: CursY, ox: &CursX, oy: &CursY)
+            CursY += 4
+            PutCursor(x: CursX, y: CursY, ox: oCursX, oy: oCursY)
             lastKeyPress = ""
         case "q":
-            CursX -= 1
-            CursY -= 1
-            PutCursor(x: CursX, y: CursY, ox: &CursX, oy: &CursY)
+            CursX -= 4
+            CursY -= 4
+            PutCursor(x: CursX, y: CursY, ox: oCursX, oy: oCursY)
             lastKeyPress = ""
         case "e":
-            CursX += 1
-            CursY -= 1
-            PutCursor(x: CursX, y: CursY, ox: &CursX, oy: &CursY)
+            CursX += 4
+            CursY -= 4
+            PutCursor(x: CursX, y: CursY, ox: oCursX, oy: oCursY)
             lastKeyPress = ""
         case "z":
-            CursX -= 1
-            CursY += 1
-            PutCursor(x: CursX, y: CursY, ox: &CursX, oy: &CursY)
+            CursX -= 4
+            CursY += 4
+            PutCursor(x: CursX, y: CursY, ox: oCursX, oy: oCursY)
             lastKeyPress = ""
         case "x":
-            CursX += 1
-            CursY += 1
-            PutCursor(x: CursX, y: CursY, ox: &CursX, oy: &CursY)
+            CursX += 4
+            CursY += 4
+            PutCursor(x: CursX, y: CursY, ox: oCursX, oy: oCursY)
             lastKeyPress = ""
         case "j":
-            BlockHalfScreen()
+            BlockClearHalfScreen()
             lastKeyPress = ""
             cx = XMin + dx * Double(CursX)
             cy = YMin + dy * Double(CursY)
-            isWaitingForKey = true // start the Julia set
+            isWaitingForKey = true  // start the Julia set
 
         default:
             lastKeyPress = ""
@@ -286,14 +332,14 @@ class GameScene: SKScene {
 
     override func didMove(to view: SKView) {
         self.view?.window?.makeFirstResponder(self)  // Ensure scene gets input
+        self.backgroundColor = SKColor.black
 
         InitGraphics()
         InitSavedPixels(Col: 0)
         InitCursor()
         CalcMSet()
-        PutCursor(x: 3, y: 3, ox: &CursX, oy: &CursY)
+        PutCursor(x: 9, y: 9, ox: CursX, oy: CursY)
 
-        isWaitingForKey = true // start of Julia render
         ExitGraphics(parent: self)
     }
 

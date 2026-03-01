@@ -9,6 +9,7 @@
 
 // Utilizes SpriteKit for graphics rendering
 // and based on the book's 320 x 200 VGA display with 256 colours
+// changed to a resolution of 1280 x 800 (4 x in each dimension over the book) but still with 256 colours
 
 import Foundation
 import SpriteKit
@@ -16,8 +17,8 @@ import SpriteKit
 
 // MARK: - Graphics Constants and type aliases
 
-let MaxXRes: Int = 320
-let MaxYRes: Int = 200
+let MaxXRes: Int = 1280
+let MaxYRes: Int = 800
 let MaxX: Int = MaxXRes - 1
 let MaxY: Int = MaxYRes - 1
 
@@ -506,20 +507,21 @@ func PutAxisAndPalette(PlaceOnScreen: Bool, parent: SKNode) {
 func AxisAndPalette(parent: SKNode) {
 
     func DisplayAxis(parent: SKNode) {
-        for x in -100...100 {
+        let dim = MaxY / 2
+        for x in -dim...dim {
             CartesianPlot3D(X: Double(x), Y: 0, Z: 0, ColorIndex: 35, parent: parent) // blue
         }
-        CartesianPlot3D(X: 100.0, Y: 0, Z: 0, ColorIndex: 251, parent: parent) // white
+        CartesianPlot3D(X: Double(dim), Y: 0, Z: 0, ColorIndex: 251, parent: parent) // white
 
-        for y in -100...100 {
+        for y in -dim...dim {
             CartesianPlot3D(X: 0, Y: Double(y), Z: 0, ColorIndex: 71, parent: parent) // green
         }
-        CartesianPlot3D(X: 0, Y: 100, Z: 0, ColorIndex: 251, parent: parent) // white
+        CartesianPlot3D(X: 0, Y: Double(dim), Z: 0, ColorIndex: 251, parent: parent) // white
 
-        for z in -100...100 {
+        for z in -dim...dim {
             CartesianPlot3D(X: 0, Y: 0, Z: Double(z), ColorIndex: 107, parent: parent) // cyan
         }
-        CartesianPlot3D(X: 0, Y: 0, Z: 100, ColorIndex: 251, parent: parent) // white
+        CartesianPlot3D(X: 0, Y: 0, Z: Double(dim), ColorIndex: 251, parent: parent) // white
     }
 
     func DisplayPalette(parent: SKNode) {
@@ -527,7 +529,7 @@ func AxisAndPalette(parent: SKNode) {
             for Intensity in 0...MaxInten {
                 for x in 0...3 {
                     for y in 0...3 {
-                        PutPixel(x: x + 5 * ColorIndex, y: 190 - y - 5 * Intensity, ColorIndex: ColorIndex, Intensity: Intensity, parent: parent)
+                        PutPixel(x: x + 20 * ColorIndex, y: 760 - y - 20 * Intensity, ColorIndex: ColorIndex, Intensity: Intensity, parent: parent)
                     }
                 }
             }
